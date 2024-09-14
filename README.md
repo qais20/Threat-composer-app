@@ -1,5 +1,12 @@
 # Threat model app
 
+## Raw app
+
+```bash
+yarn install
+yarn start
+```
+
 ## Setup
 
 ```bash
