@@ -1,7 +1,7 @@
 # Define ECS Cluster
 resource "aws_ecs_cluster" "tm_cluster" {
   name = "tm-cluster"
-  
+
   setting {
     name  = "containerInsights"
     value = "enabled"
@@ -35,7 +35,7 @@ resource "aws_ecs_task_definition" "tm_task" {
   }])
 
   runtime_platform {
-    cpu_architecture = "X86_64"
+    cpu_architecture        = "X86_64"
     operating_system_family = "LINUX"
   }
 }
