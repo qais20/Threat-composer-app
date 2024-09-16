@@ -50,7 +50,7 @@ jobs:
       - name: Build, tag as latest, and push Docker image to ECR
         id: build-image
         env:
-          ECR_REGISTRY: 767398132018.dkr.ecr.us-east-1.amazonaws.com/mohammedsayed/threat-composer
+          ECR_REGISTRY: 767398132018.dkr.ecr.us-east-1.amazonaws.com
           ECR_REPOSITORY: mohammedsayed/threat-composer 
         run: |
           docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:latest .
