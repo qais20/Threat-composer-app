@@ -1,0 +1,58 @@
+name: Mo Pipeline - Deploy to ECS
+
+on:
+  workflow_dispatch:
+    inputs:
+      confirmation:
+        description: 'Type "yes" to confirm deployment'
+        required: true
+        default: 'no'
+
+env:
+  AWS_REGION: us-east-1                
+  ECR_REPOSITORY: mohammedsayed/threat-composer         
+  ECS_SERVICE: tm-service                 
+  ECS_CLUSTER: tm-cluster                 
+  ECS_TASK_DEFINITION: tm-task 
+  CONTAINER_NAME: tm-container          
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check if deployment is confirmed
+        if: ${{ github.event.inputs.confirmation != 'yes' }}
+        run: |
+          echo "Deployment not confirmed. Exiting."
+          exit 1
+
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v2
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v2
+
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ env.AWS_REGION }}
+
+      - name: Log in to Amazon ECR
+        id: login-ecr
+        uses: aws-actions/amazon-ecr-login@v1
+
+      - name: Build, tag as latest, and push Docker image to ECR
+        id: build-image
+        env:
+          ECR_REGISTRY: 767398132018.dkr.ecr.us-east-1.amazonaws.com/mohammedsayed/threat-composer
+          ECR_REPOSITORY: mohammedsayed/threat-composer 
+        run: |
+          docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:latest .
+          docker push $ECR_REGISTRY/$ECR_REPOSITORY:latest
+          echo "image=$ECR_REGISTRY/$ECR_REPOSITORY:latest" >> $GITHUB_OUTPUT
