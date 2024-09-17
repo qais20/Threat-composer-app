@@ -12,30 +12,55 @@ resource "aws_lb" "tm_alb" {
   }
 }
 
-# Define Application Load Balancer Target Group
 resource "aws_lb_target_group" "tm_target_group" {
   name        = "tm-target-group"
-  port        = 80
+  port        = 3000
   protocol    = "HTTP"
   vpc_id      = aws_vpc.tm_vpc.id
   target_type = "ip"
 
 }
 
+# resource "aws_lb_target_group" "tm_target_group" {
+#   name        = "tm-target-group"
+#   port        = 80
+#   protocol    = "HTTP"
+#   vpc_id      = aws_vpc.tm_vpc.id
+#   target_type = "ip"
+
+
+# }
 resource "aws_lb_listener" "tm_http" {
   load_balancer_arn = aws_lb.tm_alb.arn
   port              = "80"
   protocol          = "HTTP"
+  
+  default_action {
+    type = "redirect"
+  
+    redirect {
+      port        = "443"
+      protocol    = "HTTPS"
+      status_code = "HTTP_301"
+    }
+  }
+}
+
+
+resource "aws_lb_listener" "tm_https" {
+  load_balancer_arn = aws_lb.tm_alb.arn
+  port              = 443
+  protocol          = "HTTPS"
+  ssl_policy        = "ELBSecurityPolicy-2016-08"
+  certificate_arn   = "arn:aws:acm:us-east-1:767398132018:certificate/f09d2fe3-f013-4e45-8458-fdbc292d06f1"
 
   default_action {
     type = "forward"
-
     forward {
       target_group {
         arn    = aws_lb_target_group.tm_target_group.arn
         weight = 1
       }
-
       stickiness {
         enabled  = false
         duration = 1
@@ -43,5 +68,4 @@ resource "aws_lb_listener" "tm_http" {
     }
   }
 }
-
 

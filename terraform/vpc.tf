@@ -1,4 +1,3 @@
-# Define VPC
 resource "aws_vpc" "tm_vpc" {
   cidr_block = "10.0.0.0/16"
   tags = {
@@ -6,7 +5,6 @@ resource "aws_vpc" "tm_vpc" {
   }
 }
 
-# Define Public Subnet 1
 resource "aws_subnet" "tm_public_subnet_1" {
   vpc_id                  = aws_vpc.tm_vpc.id
   cidr_block              = "10.0.1.0/24"
@@ -17,7 +15,6 @@ resource "aws_subnet" "tm_public_subnet_1" {
   }
 }
 
-# Define Public Subnet 2
 resource "aws_subnet" "tm_public_subnet_2" {
   vpc_id                  = aws_vpc.tm_vpc.id
   cidr_block              = "10.0.2.0/24"
@@ -28,7 +25,6 @@ resource "aws_subnet" "tm_public_subnet_2" {
   }
 }
 
-# Define Internet Gateway
 resource "aws_internet_gateway" "tm_igw" {
   vpc_id = aws_vpc.tm_vpc.id
   tags = {
@@ -36,7 +32,6 @@ resource "aws_internet_gateway" "tm_igw" {
   }
 }
 
-# Define Route Table
 resource "aws_route_table" "tm_public_rt" {
   vpc_id = aws_vpc.tm_vpc.id
 
@@ -50,31 +45,26 @@ resource "aws_route_table" "tm_public_rt" {
   }
 }
 
-# Route Table Association for Subnet 1
 resource "aws_route_table_association" "tm_subnet1_rt_assoc" {
   subnet_id      = aws_subnet.tm_public_subnet_1.id
   route_table_id = aws_route_table.tm_public_rt.id
 }
 
-# Route Table Association for Subnet 2
 resource "aws_route_table_association" "tm_subnet2_rt_assoc" {
   subnet_id      = aws_subnet.tm_public_subnet_2.id
   route_table_id = aws_route_table.tm_public_rt.id
 }
 
-# Define Security Group
 resource "aws_security_group" "tm_ecs_sg" {
   name   = "tm-ecs-sg"
   vpc_id = aws_vpc.tm_vpc.id
 
-  # Ingress Rules
-  ingress {
+ ingress {
     from_port   = 80
     to_port     = 80
     protocol    = "tcp"
     cidr_blocks = ["0.0.0.0/0"]
   }
-
 
   ingress {
     from_port   = 3000
@@ -83,7 +73,13 @@ resource "aws_security_group" "tm_ecs_sg" {
     cidr_blocks = ["0.0.0.0/0"]
   }
 
-  # Egress Rules
+   ingress {
+    from_port   = 443
+    to_port     = 443
+    protocol    = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
   egress {
     from_port   = 0
     to_port     = 0

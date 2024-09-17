@@ -1,4 +1,3 @@
-# Define ECS Cluster
 resource "aws_ecs_cluster" "tm_cluster" {
   name = "tm-cluster"
 
@@ -9,7 +8,6 @@ resource "aws_ecs_cluster" "tm_cluster" {
 
 }
 
-# ECS Task Definition
 resource "aws_ecs_task_definition" "tm_task" {
   family                   = "tm-task"
   network_mode             = "awsvpc"
@@ -21,7 +19,7 @@ resource "aws_ecs_task_definition" "tm_task" {
 
   container_definitions = jsonencode([{
     name      = "tm-container"
-    image     = "767398132018.dkr.ecr.us-east-1.amazonaws.com/mohammedsayed/threat-composer:latest"
+    image     = "767398132018.dkr.ecr.us-east-1.amazonaws.com/mohammedsayed/threat-composer"
     cpu       = 0
     essential = true
 
@@ -64,10 +62,9 @@ resource "aws_ecs_service" "tm_service" {
     type = "ECS"
   }
 
-  depends_on = [aws_lb_listener.tm_http]
+  depends_on = [aws_lb_listener.tm_http, aws_lb_listener.tm_https]
 }
 
-# IAM Role for ECS Task Execution
 resource "aws_iam_role" "ecs_task_execution_role" {
   name = "ecsTaskExecutionRole"
 
@@ -85,7 +82,6 @@ resource "aws_iam_role" "ecs_task_execution_role" {
   })
 }
 
-# Attach Policy to Role
 resource "aws_iam_role_policy_attachment" "ecs_task_execution_policy" {
   role       = aws_iam_role.ecs_task_execution_role.name
   policy_arn = "arn:aws:iam::aws:policy/service-role/AmazonECSTaskExecutionRolePolicy"
