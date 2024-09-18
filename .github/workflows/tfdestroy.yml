@@ -31,13 +31,40 @@ jobs:
     needs: terraform_static_analysis
     if: github.event_name == 'workflow_dispatch' && github.event.inputs.confirmation == 'yes'
     steps:
-      - uses: actions/checkout@v2
+      - name: Checkout
+        uses: actions/checkout@v2
 
       - name: Terraform Destroy
         working-directory: terraform 
         run: |
           terraform init  
-          terraform destroy --auto-approve 
+          terraform destroy --auto-approve
+        env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          AWS_DEFAULT_REGION: 'us-east-1'
+
+      - name: Remove CNAME Record from Route 53
+        run: |
+          aws route53 change-resource-record-sets \
+            --hosted-zone-id $(terraform output -raw route53_zone_id) \
+            --change-batch '{
+              "Changes": [
+                {
+                  "Action": "DELETE",
+                  "ResourceRecordSet": {
+                    "Name": "tm.lab.mohammedsayed.com",
+                    "Type": "CNAME",
+                    "TTL": 300,
+                    "ResourceRecords": [
+                      {
+                        "Value": "$(terraform output -raw alb_dns_name)"
+                      }
+                    ]
+                  }
+                }
+              ]
+            }'
         env:
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}

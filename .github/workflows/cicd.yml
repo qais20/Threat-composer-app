@@ -1,4 +1,4 @@
-name: Mo Pipeline - Deploy to ECS
+name: Mo Pipeline - Deploy image to ECR
 
 on:
   workflow_dispatch:
