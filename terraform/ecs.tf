@@ -38,7 +38,6 @@ resource "aws_ecs_task_definition" "tm_task" {
   }
 }
 
-# ECS Service Definition
 resource "aws_ecs_service" "tm_service" {
   name            = "tm-service"
   cluster         = aws_ecs_cluster.tm_cluster.id

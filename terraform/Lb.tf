@@ -21,15 +21,6 @@ resource "aws_lb_target_group" "tm_target_group" {
 
 }
 
-# resource "aws_lb_target_group" "tm_target_group" {
-#   name        = "tm-target-group"
-#   port        = 80
-#   protocol    = "HTTP"
-#   vpc_id      = aws_vpc.tm_vpc.id
-#   target_type = "ip"
-
-
-# }
 resource "aws_lb_listener" "tm_http" {
   load_balancer_arn = aws_lb.tm_alb.arn
   port              = "80"
@@ -45,7 +36,6 @@ resource "aws_lb_listener" "tm_http" {
     }
   }
 }
-
 
 resource "aws_lb_listener" "tm_https" {
   load_balancer_arn = aws_lb.tm_alb.arn
@@ -68,4 +58,3 @@ resource "aws_lb_listener" "tm_https" {
     }
   }
 }
-
