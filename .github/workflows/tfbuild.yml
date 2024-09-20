@@ -52,7 +52,7 @@ jobs:
               TIMESTAMP=$(date -u +"%Y-%m-%d %H:%M:%S UTC")
               COMMITTER=${GITHUB_ACTOR}
               curl -H "Content-Type: application/json" \
-              -d "{\"content\": \"✅ Security scan successful: ${BRANCH_NAME} at ${TIMESTAMP}. Committer: ${COMMITTER}\"}" \
+              -d "{\"content\": \"✅ Security scan successful: in repo ${{ github.event.repository.name }}, ${BRANCH_NAME} at ${TIMESTAMP}. Committer: ${COMMITTER}\"}" \
               ${{ secrets.DISCORD_WEBHOOK_URL }}
 
   terraform_static_analysis:
@@ -141,5 +141,5 @@ jobs:
           TIMESTAMP=$(date -u +"%Y-%m-%d %H:%M:%S UTC")
           COMMITTER=${GITHUB_ACTOR}
           curl -H "Content-Type: application/json" \
-          -d "{\"content\": \"✅ Application built succesfully: ${BRANCH_NAME} at ${TIMESTAMP}. Committer: ${COMMITTER}\"}" \
+          -d "{\"content\": \"✅ Application built succesfully: in repo ${{ github.event.repository.name }}, ${BRANCH_NAME} at ${TIMESTAMP}. Committer: ${COMMITTER}\"}" \
            ${{ secrets.DISCORD_WEBHOOK_URL }}

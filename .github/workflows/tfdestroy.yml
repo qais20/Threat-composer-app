@@ -43,3 +43,14 @@ jobs:
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           AWS_DEFAULT_REGION: 'us-east-1'
+
+      - name: Send Discord Notification on Success destroy
+        if: success()
+        run: |
+            BRANCH_NAME=$(echo "${GITHUB_REF#refs/heads/}")
+            TIMESTAMP=$(date -u +"%Y-%m-%d %H:%M:%S UTC")
+            COMMITTER=${GITHUB_ACTOR}
+            curl -H "Content-Type: application/json" \
+            -d "{\"content\": \"✅ Application built destroyed: in repo ${{ github.event.repository.name }}, ${BRANCH_NAME} at ${TIMESTAMP}. Committer: ${COMMITTER}\"}" \
+             ${{ secrets.DISCORD_WEBHOOK_URL }}
+             
