@@ -5,6 +5,7 @@ resource "aws_vpc" "tm_vpc" {
   }
 }
 
+
 resource "aws_subnet" "tm_public_subnet_1" {
   vpc_id                  = aws_vpc.tm_vpc.id
   cidr_block              = "10.0.1.0/24"
