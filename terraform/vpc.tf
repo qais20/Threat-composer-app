@@ -1,66 +1,40 @@
-resource "aws_vpc" "tm_vpc" {
-  cidr_block = "10.0.0.0/16"
-  tags = {
-    Name = "tm-vpc"
-  }
-}
-
-
-resource "aws_subnet" "tm_public_subnet_1" {
-  vpc_id                  = aws_vpc.tm_vpc.id
-  cidr_block              = "10.0.1.0/24"
-  availability_zone       = "us-east-1a"
-  map_public_ip_on_launch = true
-  tags = {
-    Name = "tm-public-subnet-1"
-  }
-}
-
-resource "aws_subnet" "tm_public_subnet_2" {
-  vpc_id                  = aws_vpc.tm_vpc.id
-  cidr_block              = "10.0.2.0/24"
-  availability_zone       = "us-east-1b"
-  map_public_ip_on_launch = true
-  tags = {
-    Name = "tm-public-subnet-2"
-  }
-}
-
-resource "aws_internet_gateway" "tm_igw" {
-  vpc_id = aws_vpc.tm_vpc.id
-  tags = {
-    Name = "tm-igw"
-  }
-}
-
-resource "aws_route_table" "tm_public_rt" {
-  vpc_id = aws_vpc.tm_vpc.id
-
-  route {
-    cidr_block = "0.0.0.0/0"
-    gateway_id = aws_internet_gateway.tm_igw.id
-  }
+resource "aws_vpc" "app-vpc" {
+  cidr_block       = "10.0.0.0/16"
+  instance_tenancy = "default"
 
   tags = {
-    Name = "tm-public-rt"
+    Name = "app-vpc"
   }
 }
 
-resource "aws_route_table_association" "tm_subnet1_rt_assoc" {
-  subnet_id      = aws_subnet.tm_public_subnet_1.id
-  route_table_id = aws_route_table.tm_public_rt.id
+resource "aws_subnet" "tm-subnet" {
+  vpc_id            = aws_vpc.app-vpc.id
+  cidr_block        = "10.0.1.0/24"
+  availability_zone = "eu-west-2a"
+
+  tags = {
+    Name = "tm-subnet"
+  }
 }
 
-resource "aws_route_table_association" "tm_subnet2_rt_assoc" {
-  subnet_id      = aws_subnet.tm_public_subnet_2.id
-  route_table_id = aws_route_table.tm_public_rt.id
+
+resource "aws_subnet" "tm-subnet2" {
+  vpc_id            = aws_vpc.app-vpc.id
+  cidr_block        = "10.0.2.0/24"
+  availability_zone = "eu-west-2b"
+
+  tags = {
+    Name = "tm-subnet2"
+  }
 }
 
-resource "aws_security_group" "tm_ecs_sg" {
-  name   = "tm-ecs-sg"
-  vpc_id = aws_vpc.tm_vpc.id
+# Security Group Configuration
 
- ingress {
+resource "aws_security_group" "tm-sg" {
+  name   = "tm-sg"
+  vpc_id = aws_vpc.app-vpc.id
+
+  ingress {
     from_port   = 80
     to_port     = 80
     protocol    = "tcp"
@@ -74,7 +48,7 @@ resource "aws_security_group" "tm_ecs_sg" {
     cidr_blocks = ["0.0.0.0/0"]
   }
 
-   ingress {
+  ingress {
     from_port   = 443
     to_port     = 443
     protocol    = "tcp"
@@ -89,6 +63,57 @@ resource "aws_security_group" "tm_ecs_sg" {
   }
 
   tags = {
-    Name = "tm-ecs-sg"
+    Name = "tm-sg"
   }
+}
+
+
+# # Configuring IGW
+resource "aws_internet_gateway" "tm-igw" {
+  vpc_id = aws_vpc.app-vpc.id
+
+  tags = {
+    Name = "tm-igw"
+  }
+}
+
+# # Egress-Only Internet Gateway for IPv6 traffic
+resource "aws_egress_only_internet_gateway" "tm-igw" {
+  vpc_id = aws_vpc.app-vpc.id
+
+  tags = {
+    Name = "tm-egress-only-igw"
+  }
+}
+
+
+# Configure route table
+
+resource "aws_route_table" "tm-rt" {
+  vpc_id = aws_vpc.app-vpc.id
+
+  route {
+    cidr_block = "0.0.0.0/0"
+    gateway_id = aws_internet_gateway.tm-igw.id
+  }
+
+  route {
+    ipv6_cidr_block        = "::/0"
+    egress_only_gateway_id = aws_egress_only_internet_gateway.tm-igw.id
+  }
+
+  tags = {
+    Name = "tm-rt"
+  }
+}
+
+# Conifguring route table to be associated with subnet
+resource "aws_route_table_association" "a" {
+  subnet_id      = aws_subnet.tm-subnet.id
+  route_table_id = aws_route_table.tm-rt.id
+}
+
+resource "aws_route_table_association" "b" {
+  subnet_id      = aws_subnet.tm-subnet2.id
+  route_table_id = aws_route_table.tm-rt.id
 }
