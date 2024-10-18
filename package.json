@@ -13,7 +13,7 @@
     "@babel/preset-typescript": "^7.21.4",
     "@cloudscape-design/jest-preset": "^2.0.28",
     "@testing-library/jest-dom": "*",
-    "@testing-library/react": "*",
+    "@testing-library/react": "^16.0.1",
     "@testing-library/user-event": "^14.5.2",
     "@types/d3": "^7",
     "@types/indefinite": "*",
