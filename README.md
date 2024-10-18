@@ -89,7 +89,7 @@ terraform destroy
 
 ---
 
-### **Future Enhancements**
+### **Future Changes**
 
 - **CI/CD Pipeline**: Automate deployment to AWS using a CI/CD tool like GitHub Actions.
 - **Modularised Infrastructure**: Break the Terraform code into smaller modules for better management.
