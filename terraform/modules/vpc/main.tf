@@ -3,14 +3,14 @@ resource "aws_vpc" "app-vpc" {
   instance_tenancy = "default"
 
   tags = {
-    Name = "app-vpc"
+    Name = var.vpc_name
   }
 }
 
-resource "aws_subnet" "tm-subnet" {
+resource "aws_subnet" "tm-subnet1" {
   vpc_id            = aws_vpc.app-vpc.id
   cidr_block        = "10.0.1.0/24"
-  availability_zone = "eu-west-2a"
+  availability_zone = var.availability_zone_a
 
   tags = {
     Name = "tm-subnet"
@@ -21,7 +21,7 @@ resource "aws_subnet" "tm-subnet" {
 resource "aws_subnet" "tm-subnet2" {
   vpc_id            = aws_vpc.app-vpc.id
   cidr_block        = "10.0.2.0/24"
-  availability_zone = "eu-west-2b"
+  availability_zone = var.availability_zone_b
 
   tags = {
     Name = "tm-subnet2"
@@ -31,7 +31,7 @@ resource "aws_subnet" "tm-subnet2" {
 # Security Group Configuration
 
 resource "aws_security_group" "tm-sg" {
-  name   = "tm-sg"
+  name   = var.security_group_name
   vpc_id = aws_vpc.app-vpc.id
 
   ingress {
@@ -63,7 +63,7 @@ resource "aws_security_group" "tm-sg" {
   }
 
   tags = {
-    Name = "tm-sg"
+    Name = var.security_group_name
   }
 }
 
@@ -73,7 +73,7 @@ resource "aws_internet_gateway" "tm-igw" {
   vpc_id = aws_vpc.app-vpc.id
 
   tags = {
-    Name = "tm-igw"
+    Name = var.internet_gateway_name
   }
 }
 
@@ -82,7 +82,7 @@ resource "aws_egress_only_internet_gateway" "tm-igw" {
   vpc_id = aws_vpc.app-vpc.id
 
   tags = {
-    Name = "tm-egress-only-igw"
+    Name = var.egress_internet_gateway_name
   }
 }
 
@@ -109,7 +109,7 @@ resource "aws_route_table" "tm-rt" {
 
 # Conifguring route table to be associated with subnet
 resource "aws_route_table_association" "a" {
-  subnet_id      = aws_subnet.tm-subnet.id
+  subnet_id      = aws_subnet.tm-subnet1.id
   route_table_id = aws_route_table.tm-rt.id
 }
 

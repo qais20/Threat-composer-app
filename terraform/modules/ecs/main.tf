@@ -22,7 +22,7 @@ resource "aws_ecs_task_definition" "my-tm-task" {
   container_definitions = jsonencode([
     {
       name      = "tm-container"
-      image     = "009160072276.dkr.ecr.eu-west-2.amazonaws.com/qais/threat-project:latest"
+      image     = var.image_id
       cpu       = 0
       essential = true
       portMappings = [{
@@ -44,12 +44,12 @@ resource "aws_ecs_service" "my-tm-service" {
 
   network_configuration {
     assign_public_ip = true
-    subnets          = [aws_subnet.tm-subnet.id, aws_subnet.tm-subnet2.id]
-    security_groups  = [aws_security_group.tm-sg.id]
+    subnets          = var.subnet_ids 
+    security_groups  = [var.security_group_id] 
   }
 
   load_balancer {
-    target_group_arn = aws_lb_target_group.tm-tg.arn
+    target_group_arn = var.target_group_arn 
     container_name   = "tm-container"
     container_port   = 3000
   }
@@ -58,7 +58,7 @@ resource "aws_ecs_service" "my-tm-service" {
     type = "ECS"
   }
 
-  depends_on = [aws_lb_listener.tm_http, aws_lb_listener.tm_https]
+  depends_on = [var.http_lb_listener, var.https_lb_listener] 
 }
 
 resource "aws_iam_role" "ecs_task_execution_role" {
@@ -78,5 +78,5 @@ resource "aws_iam_role" "ecs_task_execution_role" {
 
 resource "aws_iam_role_policy_attachment" "ecs_task_execution_role_policy" {
   role       = aws_iam_role.ecs_task_execution_role.name
-  policy_arn = "arn:aws:iam::aws:policy/service-role/AmazonECSTaskExecutionRolePolicy"
+  policy_arn = var.policy_arn
 }
