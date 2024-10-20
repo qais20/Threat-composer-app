@@ -1,0 +1,64 @@
+name: Infrastructure Build Pipeline
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  terraform:
+    runs-on: ubuntu-latest
+
+    steps:
+      # Step 1: Checkout the repository
+      - name: Checkout repository
+        uses: actions/checkout@v2
+
+      # Step 2: Set up Terraform
+      - name: Set up Terraform
+        uses: hashicorp/setup-terraform@v1
+        with:
+          terraform_version: 1.5.0  # Adjust the version if needed
+
+      # Step 3: Configure AWS credentials
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: eu-west-2
+
+      # Step 4: Format Terraform files
+      - name: Run terraform fmt -recursive to ensure formatting is correct
+        working-directory: ./terraform 
+        run: terraform fmt -recursive
+
+      # Step 5: Run tfsec to scan for Terraform security issues
+      - name: Run tfsec to scan for Terraform security issues
+        uses: aquasecurity/tfsec-action@v1.0.8
+
+      # Step 6: Run Checkov for security scanning
+      - name: Run Checkov to scan for security issues
+        uses: bridgecrewio/checkov-action@master
+        with:
+          directory: ./terraform 
+
+      # Step 7: Initialize Terraform
+      - name: Terraform Init
+        working-directory: ./terraform  
+        run: terraform init
+
+      # Step 8: Validate Terraform
+      - name: Terraform Validate
+        working-directory: ./terraform
+        run: terraform validate
+
+      # Step 9: Terraform Plan
+      - name: Terraform Plan
+        working-directory: ./terraform
+        run: terraform plan
+
+      # Step 10: Apply the Terraform plan
+      - name: Terraform Apply
+        working-directory: ./terraform
+        run: terraform apply -auto-approve
