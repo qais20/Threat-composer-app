@@ -8,6 +8,7 @@ on:
           required: true
           default: 'no'
 
+
 jobs:
   terraform:
     runs-on: ubuntu-latest
@@ -31,22 +32,22 @@ jobs:
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: eu-west-2
 
-      # Step 4: Initialize Terraform
+      # Step 4: Initialise Terraform
       - name: Terraform Init
         working-directory: ./terraform  
         run: terraform init
 
-      # Step 5: Validate Terraform
-      - name: Terraform Validate
-        working-directory: ./terraform
-        run: terraform validate
+      # Debug Step: Show Terraform State
+      - name: Debug Terraform State
+        working-directory: ./terraform  
+        run: terraform show
 
-      # Step 6: Terraform Plan (Destroy)
+      # Step 5: Terraform Plan (Destroy)
       - name: Terraform Plan Destroy
         working-directory: ./terraform
         run: terraform plan -destroy
 
-      # Step 7: Destroy the Terraform-managed infrastructure
+      # Step 6: Destroy the Terraform-managed infrastructure
       - name: Terraform Destroy
         working-directory: ./terraform
         run: terraform destroy -auto-approve
