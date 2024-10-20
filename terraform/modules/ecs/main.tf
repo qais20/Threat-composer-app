@@ -14,8 +14,8 @@ resource "aws_ecs_task_definition" "my-tm-task" {
   family                   = "my-tm-task"
   network_mode             = "awsvpc"
   requires_compatibilities = ["FARGATE"]
-  execution_role_arn       = aws_iam_role.ecs_task_execution_role.arn
-  task_role_arn            = aws_iam_role.ecs_task_execution_role.arn
+  execution_role_arn       = aws_iam_role.ecs_task_execution_role1.arn
+  task_role_arn            = aws_iam_role.ecs_task_execution_role1.arn
   cpu                      = "1024"
   memory                   = "3072"
 
@@ -61,8 +61,8 @@ resource "aws_ecs_service" "my-tm-service" {
   depends_on = [var.http_lb_listener, var.https_lb_listener] 
 }
 
-resource "aws_iam_role" "ecs_task_execution_role" {
-  name = "ecs-task-execution-role"
+resource "aws_iam_role" "ecs_task_execution_role1" {
+  name = "ecs-task-execution-role1"
 
   assume_role_policy = jsonencode({
     Version = "2012-10-17",
@@ -76,7 +76,7 @@ resource "aws_iam_role" "ecs_task_execution_role" {
   })
 }
 
-resource "aws_iam_role_policy_attachment" "ecs_task_execution_role_policy" {
-  role       = aws_iam_role.ecs_task_execution_role.name
+resource "aws_iam_role_policy_attachment" "ecs_task_execution_role1_policy" {
+  role       = aws_iam_role.ecs_task_execution_role1.name
   policy_arn = var.policy_arn
 }
