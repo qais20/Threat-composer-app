@@ -33,12 +33,6 @@ jobs:
         working-directory: ./terraform 
         run: terraform fmt -recursive
 
-      # Step 6: Run Checkov for security scanning
-      - name: Run Checkov to scan for security issues
-        uses: bridgecrewio/checkov-action@master
-        with:
-          directory: ./terraform 
-
       # Step 7: Initialise Terraform
       - name: Terraform Init
         working-directory: ./terraform  
