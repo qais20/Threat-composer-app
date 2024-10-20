@@ -26,31 +26,13 @@ jobs:
         with:
           aws-region: eu-west-2
 
-      # Fetch the AWS Account ID and set it as an output variable
-      - name: Get AWS Account ID
-        id: aws_account
-        run: |
-          ACCOUNT_ID=$(aws sts get-caller-identity --query Account --output text)
-          echo "::set-output name=account_id::$ACCOUNT_ID"
-      
-      # Set ECR registry URL based on the retrieved AWS account ID
-      - name: Set ECR Registry URL
-        run: |
-          echo "ECR_REGISTRY=${{ steps.aws_account.outputs.account_id }}.dkr.ecr.eu-west-2.amazonaws.com" >> $GITHUB_ENV
 
-      # Ensure the ECR repository exists
-      - name: Create ECR repository if it doesn't exist
+      - name: Build, tag as latest, and push Docker image to ECR
+        id: build-image
+        env:
+            ECR_REGISTRY: 009160072276.dkr.ecr.eu-west-2.amazonaws.com/qais/threat-project
+            ECR_REPOSITORY: qais/threat-project
         run: |
-          aws ecr describe-repositories --repository-names my-app || \
-          aws ecr create-repository --repository-name my-app
-
-      - name: Build Docker image
-        run: |
-          docker build -t my-app:latest .
-          docker tag my-app:latest ${{ env.ECR_REGISTRY }}/my-app:latest
-
-
-      # Push the Docker image to ECR
-      - name: Push Docker image to ECR
-        run: |
-          docker push ${{ env.ECR_REGISTRY }}/my-app:latest
+            docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:latest .
+            docker push $ECR_REGISTRY/$ECR_REPOSITORY:latest
+            # echo "image=$ECR_REGISTRY/$ECR_REPOSITORY:latest" >> $GITHUB_OUTPUT
