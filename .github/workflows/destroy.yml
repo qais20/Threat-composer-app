@@ -1,4 +1,4 @@
-name: Infrastructure Build Pipeline
+name: Destroy Terraform Infrastructure
 
 on:
     workflow_dispatch:
@@ -21,7 +21,7 @@ jobs:
       - name: Set up Terraform
         uses: hashicorp/setup-terraform@v1
         with:
-          terraform_version: 1.5.0  # Adjust the version if needed
+          terraform_version: 1.5.0  
 
       # Step 3: Configure AWS credentials
       - name: Configure AWS Credentials
@@ -31,27 +31,22 @@ jobs:
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: eu-west-2
 
-      # Step 4: Format Terraform files
-      - name: Run terraform fmt -recursive to ensure formatting is correct
-        working-directory: ./terraform 
-        run: terraform fmt -recursive
-
-      # Step 7: Initialise Terraform
+      # Step 4: Initialize Terraform
       - name: Terraform Init
         working-directory: ./terraform  
         run: terraform init
 
-      # Step 8: Validate Terraform
+      # Step 5: Validate Terraform
       - name: Terraform Validate
         working-directory: ./terraform
         run: terraform validate
 
-      # Step 9: Terraform Plan
-      - name: Terraform Plan
+      # Step 6: Terraform Plan (Destroy)
+      - name: Terraform Plan Destroy
         working-directory: ./terraform
-        run: terraform plan
+        run: terraform plan -destroy
 
-      # Step 10: Apply the Terraform plan
-      - name: Terraform Apply
+      # Step 7: Destroy the Terraform-managed infrastructure
+      - name: Terraform Destroy
         working-directory: ./terraform
-        run: terraform apply -auto-approve
+        run: terraform destroy -auto-approve
