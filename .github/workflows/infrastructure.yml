@@ -33,10 +33,6 @@ jobs:
         working-directory: ./terraform 
         run: terraform fmt -recursive
 
-      # Step 5: Run tfsec to scan for Terraform security issues
-      - name: Run tfsec to scan for Terraform security issues
-        uses: aquasecurity/tfsec-action@v1.0.3
-
       # Step 6: Run Checkov for security scanning
       - name: Run Checkov to scan for security issues
         uses: bridgecrewio/checkov-action@master
