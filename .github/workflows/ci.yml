@@ -26,6 +26,9 @@ jobs:
         with:
             aws-region: eu-west-2
 
+      - name: Debug Registry Output
+        run: echo "${{ steps.login-ecr.outputs.registry }}"
+
       - name: Build Docker image
         run: |
           docker build -t my-app:latest .
