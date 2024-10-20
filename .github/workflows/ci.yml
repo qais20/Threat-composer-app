@@ -49,9 +49,11 @@ jobs:
           docker build -t my-app:latest .
           docker tag my-app:latest ${{ env.ECR_REGISTRY }}/my-app:latest
 
+      # Debug step to ensure ECR registry is correct
+      - name: Debug ECR Registry
+        run: echo "ECR Registry: ${{ env.ECR_REGISTRY }}"
+
+      # Push the Docker image to ECR
       - name: Push Docker image to ECR
         run: |
           docker push ${{ env.ECR_REGISTRY }}/my-app:latest
-
-      - name: Debug ECR Registry 
-        run: echo "ECR Registry: ${{ env.ECR_REGISTRY }}"    
