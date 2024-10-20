@@ -26,17 +26,19 @@ jobs:
         with:
           aws-region: eu-west-2
 
-      # Dynamically fetch the AWS account ID and construct the ECR registry URL
+      # Fetch the AWS Account ID and set it as an output variable
       - name: Get AWS Account ID
         id: aws_account
         run: |
-          aws sts get-caller-identity --query Account --output text
-
+          ACCOUNT_ID=$(aws sts get-caller-identity --query Account --output text)
+          echo "::set-output name=account_id::$ACCOUNT_ID"
+      
+      # Set ECR registry URL based on the retrieved AWS account ID
       - name: Set ECR Registry URL
         run: |
           echo "ECR_REGISTRY=${{ steps.aws_account.outputs.account_id }}.dkr.ecr.eu-west-2.amazonaws.com" >> $GITHUB_ENV
 
-      # Check if the ECR repository exists, and if not, create it
+      # Ensure the ECR repository exists
       - name: Create ECR repository if it doesn't exist
         run: |
           aws ecr describe-repositories --repository-names my-app || \
@@ -51,3 +53,5 @@ jobs:
         run: |
           docker push ${{ env.ECR_REGISTRY }}/my-app:latest
 
+      - name: Debug ECR Registry 
+        run: echo "ECR Registry: ${{ env.ECR_REGISTRY }}"    
