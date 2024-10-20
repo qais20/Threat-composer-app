@@ -34,7 +34,7 @@ jobs:
       - uses: actions/checkout@v2
 
       - name: Terraform Destroy
-        working-directory: Threat-composer-app/terraform 
+        working-directory: Threat-composer-app/Threat-Model/terraform
         run: |
           terraform init  
           terraform destroy --target=aws_route53_record.tm_cname_record --auto-approve
