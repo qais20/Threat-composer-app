@@ -1,53 +1,45 @@
 name: Destroy Terraform Infrastructure
 
 on:
-    workflow_dispatch:
-      inputs:
-        confirmation:
-          description: 'Type "yes" to confirm deployment'
-          required: true
-          default: 'no'
+  workflow_dispatch:
+    inputs:
+      confirmation:
+        description: 'Type "yes" to confirm destruction'
+        required: true
+        default: 'no'
 
+permissions:
+  contents: read
+
+env:
+  AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+  AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+  AWS_DEFAULT_REGION: 'eu-west-2'
 
 jobs:
-  terraform:
+  terraform_static_analysis:
+    name: 'Terraform Static Analysis'
     runs-on: ubuntu-latest
-
+    if: github.event_name == 'workflow_dispatch'
     steps:
-      # Step 1: Checkout the repository
-      - name: Checkout repository
+      - name: Checkout
         uses: actions/checkout@v2
 
-      # Step 2: Set up Terraform
-      - name: Set up Terraform
-        uses: hashicorp/setup-terraform@v1
-        with:
-          terraform_version: 1.5.0  
+  terraform_destroy:
+    name: 'Terraform Destroy'
+    runs-on: ubuntu-latest
+    needs: terraform_static_analysis
+    if: github.event_name == 'workflow_dispatch' && github.event.inputs.confirmation == 'yes'
+    steps:
+      - uses: actions/checkout@v2
 
-      # Step 3: Configure AWS credentials
-      - name: Configure AWS Credentials
-        uses: aws-actions/configure-aws-credentials@v4
-        with:
-          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY }}
-          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          aws-region: eu-west-2
-
-      # Step 4: Initialise Terraform
-      - name: Terraform Init
-        working-directory: ./terraform  
-        run: terraform init
-
-      # Debug Step: Show Terraform State
-      - name: Debug Terraform State
-        working-directory: ./terraform  
-        run: terraform show
-
-      # Step 5: Terraform Plan (Destroy)
-      - name: Terraform Plan Destroy
-        working-directory: ./terraform
-        run: terraform plan -destroy
-
-      # Step 6: Destroy the Terraform-managed infrastructure
       - name: Terraform Destroy
-        working-directory: ./terraform
-        run: terraform destroy -auto-approve
+        working-directory: terraform 
+        run: |
+          terraform init  
+          terraform destroy --target=aws_route53_record.tm_cname_record --auto-approve
+          terraform destroy --auto-approve 
+        env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          AWS_DEFAULT_REGION: 'eu-west-2'
