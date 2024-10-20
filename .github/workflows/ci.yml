@@ -26,13 +26,11 @@ jobs:
         with:
           aws-region: eu-west-2
 
-
       - name: Build, tag as latest, and push Docker image to ECR
         id: build-image
         env:
-            ECR_REGISTRY: 009160072276.dkr.ecr.eu-west-2.amazonaws.com/qais/threat-project
-            ECR_REPOSITORY: qais/threat-project
+          ECR_REGISTRY: 009160072276.dkr.ecr.eu-west-2.amazonaws.com/qais/threat-project
         run: |
-            docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:latest .
-            docker push $ECR_REGISTRY/$ECR_REPOSITORY:latest
-            # echo "image=$ECR_REGISTRY/$ECR_REPOSITORY:latest" >> $GITHUB_OUTPUT
+          docker build -t $ECR_REGISTRY:latest .
+          docker push $ECR_REGISTRY:latest
+          # echo "image=$ECR_REGISTRY:latest" >> $GITHUB_OUTPUT
