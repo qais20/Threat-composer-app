@@ -23,6 +23,8 @@ jobs:
       - name: Log in to Amazon ECR
         id: login-ecr
         uses: aws-actions/configure-aws-credentials@v1
+        with:
+            aws-region: eu-west-2
 
       - name: Build Docker image
         run: |
