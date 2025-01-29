@@ -6,6 +6,8 @@ This project demonstrates how to deploy a **Node.js-based Threat Modelling Tool*
 
 Our goal is to create a **scalable**, **secure**, and **automated** infrastructure for the tool, ensuring HTTPS access and high availability.
 
+![App Screenshot](https://github.com/qais20/Threat-composer-app/blob/72f1f95d15f0e5c259a85a5ab655f2be6713ecd8/Screenshot%202024-10-18%20223933.jpg)
+
 ---
 
 ### **Key Features**
@@ -34,14 +36,6 @@ Our goal is to create a **scalable**, **secure**, and **automated** infrastructu
 3. **ALB (Application Load Balancer)**: Ensures efficient traffic distribution and fault tolerance.
 4. **Route 53 DNS**: Maps the custom domain to the ALB.
 5. **ACM (AWS Certificate Manager)**: Manages SSL certificates to enforce HTTPS.
-
----
-
-### **Screenshot**
-
-Here is a screenshot of the **Threat Modelling Tool**:
-
-![App Screenshot](https://github.com/qais20/Threat-composer-app/blob/72f1f95d15f0e5c259a85a5ab655f2be6713ecd8/Screenshot%202024-10-18%20223933.jpg)
 
 ---
 
